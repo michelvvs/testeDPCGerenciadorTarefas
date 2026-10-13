@@ -422,7 +422,7 @@ dentro para fora.
 
 - Entender o modelo de tipagem estática e *nullable reference types* do C#, e ler as mensagens do
   compilador (erros de namespace e de declaração de tipo).
-- Conceitos novos para mim: injeção de dependência nativa, ciclo de vida (*scoped*), middleware
+- Conceitos a se fortalecer: injeção de dependência nativa, ciclo de vida (*scoped*), middleware
   pipeline e migrations do EF Core.
 - Detalhes de ambiente: versão de Node exigida pelo Vite, expansão de `*` no zsh ao instalar
   ferramentas com `--version`, e porta 5000 ocupada no macOS.
