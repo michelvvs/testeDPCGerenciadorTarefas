@@ -1,0 +1,44 @@
+services:
+  api:
+    build: ./backend
+    expose:
+      - "8080"
+    environment:
+      ConnectionStrings__Default: "Data Source=/data/taskmanager.db"
+      Cors__Origins__0: "${PUBLIC_URL:?Defina PUBLIC_URL no .env}"
+      Jwt__Key: "${JWT_KEY:?Defina JWT_KEY no .env}"
+    volumes:
+      - db-data:/data
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: "${PUBLIC_URL:?Defina PUBLIC_URL no .env}"
+    expose:
+      - "80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  proxy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: "${SITE_ADDRESS:?Defina SITE_ADDRESS no .env}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+      - web
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:
