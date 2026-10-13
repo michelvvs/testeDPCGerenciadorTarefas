@@ -14,6 +14,7 @@ import { btn } from './ui';
 import { ListChecks, LogOut, Plus } from 'lucide-react';
 import { useAuth } from './auth/useAuth';
 import { Alert } from './components/Alert';
+import { Footer } from './components/Footer';
 
 interface ToastState {
   type: 'ok' | 'error';
@@ -102,7 +103,7 @@ export function TaskBoard() {
   const initial = user?.name?.trim().charAt(0).toUpperCase() ?? '';
 
   return (
-    <div className="min-h-screen bg-base-200 text-base-content">
+    <div className="flex min-h-screen flex-col bg-base-200 text-base-content">
       <header className="sticky top-0 z-30 border-b border-base-300 bg-base-100/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -134,7 +135,7 @@ export function TaskBoard() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-5 pb-16 pt-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-12 pt-6">
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Tarefas</h1>
@@ -196,6 +197,8 @@ export function TaskBoard() {
           )}
         </section>
       </main>
+
+      <Footer />
 
       {formOpen && (
         <TaskFormModal
