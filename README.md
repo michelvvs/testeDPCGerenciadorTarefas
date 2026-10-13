@@ -26,6 +26,7 @@ acompanhar o andamento de cada uma por meio de três status (**Pendente**, **Em 
 - Documentação interativa da API (Swagger / OpenAPI), com suporte ao token Bearer
 - Tratamento padronizado de erros (ProblemDetails) refletido em mensagens na interface
 - Testes automatizados no backend e no frontend, executados antes de cada commit (Husky)
+- Execução completa com **um comando** via Docker Compose (API + frontend + banco persistente)
 
 ---
 
@@ -44,12 +45,68 @@ acompanhar o andamento de cada uma por meio de três status (**Pendente**, **Em 
 | Testes (backend) | xUnit, `WebApplicationFactory`, SQLite em memória |
 | Testes (frontend) | Vitest, Testing Library, jsdom |
 | Qualidade | ESLint, `tsc`, Husky (hook de pre-commit) |
+| Infraestrutura | Docker (build multi-stage), Docker Compose, nginx (servindo o frontend) |
 
 ---
 
 ## 3. Como executar
 
-### Pré-requisitos
+Há duas formas: **com Docker** (mais simples, não exige instalar .NET nem Node) ou **localmente**.
+
+**Clonar o repositório (vale para as duas)**
+
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd <PASTA_DO_REPOSITORIO>
+```
+
+### Opção A: Docker (recomendado)
+
+**Pré-requisito:** Docker Desktop (ou Docker Engine + Compose) em execução.
+
+**1. Criar o arquivo de variáveis** (na raiz do repositório)
+
+```bash
+cp .env.example .env
+```
+
+O `.env` define a chave de assinatura do JWT (`JWT_KEY`, mínimo de 32 caracteres). O valor de
+exemplo serve para uso local; troque-o em qualquer outro ambiente. O arquivo `.env` não é
+versionado.
+
+**2. Subir tudo**
+
+```bash
+docker compose up --build
+```
+
+Na primeira vez o Docker baixa as imagens base e compila API e frontend (alguns minutos).
+
+**3. Acessar**
+
+| O quê | URL |
+|---|---|
+| Aplicação (frontend) | http://localhost:3000 |
+| API / Swagger | http://localhost:5080/swagger |
+
+**4. Parar**
+
+```bash
+docker compose down        # para os contêineres e mantém os dados
+docker compose down -v     # para e apaga também o banco (volume)
+```
+
+**O que o Compose sobe**
+
+| Serviço | Imagem | Porta (host → contêiner) | Observações |
+|---|---|---|---|
+| `api` | `dotnet/aspnet:10.0` (build com `dotnet/sdk:10.0`) | 5080 → 8080 | Executa como usuário não-root; aplica as migrations ao iniciar |
+| `web` | `nginx:alpine` (build com `node:22-alpine`) | 3000 → 80 | Serve o build estático do React; a URL da API é embutida no build |
+| volume `db-data` | — | — | Guarda `taskmanager.db`; os dados persistem entre execuções |
+
+### Opção B: execução local (sem Docker)
+
+**Pré-requisitos**
 
 | Ferramenta | Versão | Verificar |
 |---|---|---|
@@ -58,16 +115,9 @@ acompanhar o andamento de cada uma por meio de três status (**Pendente**, **Em 
 | npm | 10+ | `npm -v` |
 | Git | qualquer recente | `git --version` |
 
-### Passo a passo
+**Passo a passo**
 
-**1. Clonar o repositório**
-
-```bash
-git clone <URL_DO_REPOSITORIO>
-cd <PASTA_DO_REPOSITORIO>
-```
-
-**2. Subir a API** (terminal 1)
+**1. Subir a API** (terminal 1)
 
 ```bash
 cd backend/TaskManager.Api
@@ -81,7 +131,7 @@ dotnet run --launch-profile http
 - Em desenvolvimento, a chave de assinatura do JWT já vem em `appsettings.Development.json`;
   não é preciso configurar nada para rodar localmente.
 
-**3. Subir o frontend** (terminal 2)
+**2. Subir o frontend** (terminal 2)
 
 ```bash
 cd frontend
@@ -92,10 +142,11 @@ npm run dev
 
 - A aplicação abre em **http://localhost:5173**
 
-**4. Usar**
+### Usando a aplicação
 
-1. Acesse http://localhost:5173 e clique em **Cadastre-se** para criar uma conta
-   (nome, e-mail e senha com no mínimo 8 caracteres). Você entra logado automaticamente.
+1. Acesse a aplicação (http://localhost:3000 no Docker, ou http://localhost:5173 localmente) e
+   clique em **Cadastre-se** para criar uma conta (nome, e-mail e senha com no mínimo 8
+   caracteres). Você entra logado automaticamente.
 2. Crie tarefas em **Nova tarefa** e use os botões de cada linha para iniciar, concluir ou desfazer.
 3. Use **Sair** e entre com outra conta para ver que cada usuário tem a sua própria lista.
 
@@ -108,10 +159,13 @@ npm run dev
 | `backend/TaskManager.Api/appsettings.json` | `Jwt:Issuer` / `Jwt:Audience` | `TaskManager` / `TaskManagerWeb` | Emissor e público do token |
 | `backend/TaskManager.Api/appsettings.json` | `Jwt:ExpiresMinutes` | `120` | Validade do token, em minutos |
 | `backend/TaskManager.Api/appsettings.Development.json` | `Jwt:Key` | chave de desenvolvimento | Chave de assinatura (mín. 32 caracteres) |
-| `frontend/.env` | `VITE_API_URL` | `http://localhost:5080` | URL base da API |
+| `frontend/.env` | `VITE_API_URL` | `http://localhost:5080` | URL base da API (execução local) |
+| `.env` (raiz) | `JWT_KEY` | valor de exemplo em `.env.example` | Chave do JWT usada pelo Docker Compose (mín. 32 caracteres) |
+| `docker-compose.yml` | `args.VITE_API_URL` | `http://localhost:5080` | URL da API embutida no build do frontend (Docker) |
 
 Qualquer valor do backend pode ser sobrescrito por variável de ambiente (ex.:
-`ConnectionStrings__Default`, `Cors__Origins__0`, `Jwt__Key`).
+`ConnectionStrings__Default`, `Cors__Origins__0`, `Jwt__Key`). É assim que o Docker Compose
+configura a API.
 
 > **Segurança:** a chave de `appsettings.Development.json` existe só para facilitar a execução
 > local. Em qualquer outro ambiente, defina `Jwt__Key` por variável de ambiente ou cofre de
@@ -140,7 +194,13 @@ npm run lint                                   # análise estática
 | API não inicia: `Jwt:Key deve ter ao menos 32 caracteres` | Ambiente sem a chave configurada | Definir `Jwt__Key` (ou usar o ambiente Development) |
 | Vite reclama da versão do Node | Node abaixo de 20.19 | Atualizar o Node |
 | Porta 5080 em uso | Outro processo ocupando a porta | Encerrar o processo ou alterar `applicationUrl` em `Properties/launchSettings.json` (e `VITE_API_URL`) |
-| Quer recomeçar com banco limpo | — | Apagar `backend/TaskManager.Api/taskmanager.db*` e subir a API de novo |
+| Quer recomeçar com banco limpo (local) | — | Apagar `backend/TaskManager.Api/taskmanager.db*` e subir a API de novo |
+| Quer recomeçar com banco limpo (Docker) | — | `docker compose down -v` e `docker compose up --build` |
+| Docker: `required variable JWT_KEY is missing` | Arquivo `.env` ausente na raiz | `cp .env.example .env` (na mesma pasta do `docker-compose.yml`) |
+| Docker: a API reinicia em loop | `JWT_KEY` com menos de 32 caracteres | Aumentar a chave no `.env` e `docker compose up -d` |
+| Docker: erro de CORS | Acesso por `127.0.0.1:3000` (origem diferente da configurada) | Usar `http://localhost:3000` |
+| Docker: front chama a URL errada da API | `VITE_API_URL` é fixada no **build** | Ajustar o `args` do compose e rodar `docker compose build --no-cache web` |
+| Docker: `port is already allocated` | Servidores locais usando 5080/3000 | Encerrar a API/`npm run dev` locais |
 
 ---
 
@@ -273,9 +333,12 @@ curl -s -X POST http://localhost:5080/api/tasks \
 
 ```
 .
+├── docker-compose.yml      # sobe API + frontend + volume do banco
+├── .env.example            # modelo das variáveis do Compose (JWT_KEY)
 ├── package.json            # scripts de teste e Husky (somente tooling)
 ├── .husky/pre-commit       # roda os testes da parte alterada
 ├── backend/
+│   ├── Dockerfile          # imagem da API (multi-stage, usuário não-root)
 │   ├── TaskManager.slnx
 │   ├── TaskManager.Api/
 │   │   ├── Controllers/    # endpoints HTTP (finos): Auth e Tasks
@@ -289,6 +352,7 @@ curl -s -X POST http://localhost:5080/api/tasks \
 │   │   └── Program.cs      # composição da aplicação
 │   └── TaskManager.Tests/  # testes unitários e de integração (xUnit)
 └── frontend/
+    ├── Dockerfile          # imagem do frontend (build com Node, servida por nginx)
     └── src/
         ├── api/            # cliente HTTP (com interceptors de token/401) e chamadas à API
         ├── auth/           # contexto, provider, hook e armazenamento da sessão
@@ -323,6 +387,11 @@ curl -s -X POST http://localhost:5080/api/tasks \
 | **Mapeamento manual (sem AutoMapper)** | Poucos campos; explícito e sem dependência extra. |
 | **Testes com SQLite em memória, sem provider "InMemory"** | Comportamento fiel ao banco real (constraints, índices, SQL traduzido). |
 | **Husky na raiz, rodando só a parte alterada** | Um único ponto de ativação para backend e frontend; hook rápido para não ser desligado. |
+| **Docker com build multi-stage** | Imagens finais pequenas (só runtime/nginx), sem SDK nem código-fonte; camadas de dependências em cache. |
+| **Contêiner da API sem privilégios de root** | Menor privilégio: um eventual comprometimento do processo tem alcance limitado. |
+| **Configuração por variáveis de ambiente (12-Factor)** | A mesma imagem roda em qualquer ambiente; a chave JWT é injetada em execução e **nunca** embutida na imagem. |
+| **Compose falha cedo sem `JWT_KEY`** | Evita subir uma API que cairia na inicialização; a mensagem diz o que fazer. |
+| **Banco em volume nomeado** | Os dados persistem entre `down`/`up`; remover é uma ação explícita (`down -v`). |
 | **Camada `api/` e hooks no frontend** | Componentes não conhecem HTTP; lógica de busca e debounce reutilizável. |
 | **Interceptors do Axios para token e 401** | Envio do `Authorization` e *logout* automático centralizados, sem repetir em cada chamada. |
 | **Tailwind com tokens no `@theme` e helpers de classe** | Visual consistente e centralizado, sem CSS global; reuso por componentes. |
@@ -333,7 +402,7 @@ curl -s -X POST http://localhost:5080/api/tasks \
 
 ## 8. Como foi feito, dificuldades e facilidades
 
-**Contexto.** Minha experiência anterior é com Node.js e React; este foi o meu primeiro projeto
+**Contexto.** Minha experiência anterior é com Node.js e React; tenho um pouco menos de experiência
 em .NET/C#. Por isso, a abordagem foi mapear o que eu já conhecia para o ecossistema novo
 (Express/Nest → ASP.NET Core, Prisma/TypeORM → EF Core, Jest → xUnit) e então construir de
 dentro para fora.
@@ -347,6 +416,7 @@ dentro para fora.
 5. Refinamento de UX: ações por botão com ícones, cor da linha por status e simplificação da tabela.
 6. Autenticação: entidade de usuário, JWT, isolamento de tarefas por dono, tela de login/cadastro.
 7. Camada de testes (backend e frontend) e hook de pre-commit com Husky.
+8. Containerização: Dockerfiles multi-stage e `docker-compose.yml`.
 
 **Dificuldades**
 
@@ -363,6 +433,9 @@ dentro para fora.
 - Testes: o Vitest não limpa o DOM entre testes sem configuração (`cleanup` no `afterEach`), e o
   ESLint com regras novas do React (`set-state-in-effect`) exigiu repensar o hook `useTasks`
   (estado derivado em vez de `setState` síncrono no efeito).
+- Docker: dentro do contêiner o ambiente é *Production*, então o `appsettings.Development.json`
+  (com a chave de desenvolvimento) não é carregado e a chave JWT precisa chegar por variável de
+  ambiente; e, como o Vite lê `VITE_*` **no build**, a URL da API precisa ser um *build arg*.
 
 **Facilidades**
 
@@ -384,7 +457,8 @@ dentro para fora.
 | Sem limite de tentativas de login | Rate limiting (`AddRateLimiter`) |
 | Sem verificação de e-mail nem recuperação de senha | Fluxo de confirmação e redefinição |
 | Qualquer status é aceito a partir de qualquer outro | Validar transições de status no servidor |
-| Docker/Compose ainda não adicionados | `docker compose up --build` para subir tudo |
+| Imagens sem *healthcheck* e `depends_on` sem esperar a API ficar saudável | Endpoint `/health` e `condition: service_healthy` no Compose |
+| Frontend com URL da API fixada em tempo de build | Proxy reverso no nginx (`/api` → `api:8080`) para usar a mesma origem e dispensar CORS |
 | Sem pipeline de CI | Executar `npm test` a cada push (Bitbucket Pipelines / GitHub Actions) |
 | SQLite como banco | PostgreSQL em ambiente de produção |
 | Sem publicação online | Deploy do frontend e da API |
