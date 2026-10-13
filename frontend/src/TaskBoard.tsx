@@ -66,13 +66,20 @@ export function TaskBoard() {
 
   async function handleStatusChange(task: Task, newStatus: TaskStatus) {
     if (busyIds.has(task.id)) return;
+    setBusyIds((prev) => new Set(prev).add(task.id)); 
     try {
       await tasksApi.updateStatus(task.id, newStatus);
       notify('ok', 'Status atualizado.');
       reload();
     } catch (e) {
       notify('error', getErrorMessage(e));
-    }
+    } finally {
+    setBusyIds((prev) => {                               // libera, com sucesso ou erro
+        const next = new Set(prev);
+        next.delete(task.id);
+        return next;
+      });
+    } 
   }
 
   async function confirmDelete() {

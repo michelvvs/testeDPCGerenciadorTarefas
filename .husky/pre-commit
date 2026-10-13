@@ -1,0 +1,11 @@
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+if echo "$staged" | grep -q '^backend/'; then
+  echo "▶ backend: dotnet test"
+  npm run test:backend --silent || exit 1
+fi
+
+if echo "$staged" | grep -q '^frontend/'; then
+  echo "▶ frontend: typecheck + testes"
+  npm run test:frontend --silent || exit 1
+fi

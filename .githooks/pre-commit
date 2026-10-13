@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Roda os testes das partes alteradas antes de cada commit.
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+run_backend=false
+run_frontend=false
+if echo "$staged" | grep -q '^backend/';  then run_backend=true;  fi
+if echo "$staged" | grep -q '^frontend/'; then run_frontend=true; fi
+
+if [ "$run_backend" = true ]; then
+  echo "▶ backend: dotnet test"
+  (cd backend && dotnet test --nologo --verbosity quiet)
+fi
+
+if [ "$run_frontend" = true ]; then
+  echo "▶ frontend: typecheck + testes"
+  (cd frontend && npm run typecheck --silent && npm test --silent)
+fi
+
+echo "✔ pre-commit ok"

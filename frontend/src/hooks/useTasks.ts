@@ -8,13 +8,14 @@ export function useTasks(filters: TaskFiltersState) {
 
   const [data, setData] = useState<PagedResult<Task> | null>(null);
   const [summary, setSummary] = useState<TaskSummary | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [version, setVersion] = useState(0); 
+  const [version, setVersion] = useState(0);
+  const [settledKey, setSettledKey] = useState<string | null>(null);
+
+  const key = `${search}|${status}|${priority}|${page}|${version}`;
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
 
     Promise.all([
       tasksApi.list({ search, status, priority, page }),
@@ -30,13 +31,15 @@ export function useTasks(filters: TaskFiltersState) {
         if (!cancelled) setError(getErrorMessage(e));
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setSettledKey(key);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [search, status, priority, page, version]);
+  }, [key, search, status, priority, page]);
+
+  const loading = settledKey !== key;
 
   const reload = useCallback(() => setVersion((v) => v + 1), []);
 

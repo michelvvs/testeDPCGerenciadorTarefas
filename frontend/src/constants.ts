@@ -35,7 +35,7 @@ export const STATUS_ACTIONS: Record<TaskStatus, StatusAction[]> = {
     ],
     InProgress: [
         {label: 'Concluir', icon: Check, target: 'Done'},
-        {label: 'Reabrir', icon: Undo2, target: 'Pending'},
+        {label: 'Voltar para pendente', icon: Undo2, target: 'Pending'}, 
     ],
     Done: [
         {label: 'Reabrir', icon: Undo2, target: 'Pending'},

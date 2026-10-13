@@ -1,0 +1,26 @@
+{
+  "name": "testedpcgerenciadortarefas",
+  "version": "1.0.0",
+  "description": "> **Teste técnico para a Empresa Domingues e Pinho Contadores** · Desenvolvido por **Michel Victor** > Vaga: Desenvolvedor Fullstack (.NET / C# + React)",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "dotnet test backend --nologo --verbosity quiet",
+    "test:frontend": "npm --prefix frontend run typecheck --silent && npm --prefix frontend test --silent && npm --prefix frontend run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michelvvs/testeDPCGerenciadorTarefas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michelvvs/testeDPCGerenciadorTarefas/issues"
+  },
+  "homepage": "https://github.com/michelvvs/testeDPCGerenciadorTarefas#readme",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
