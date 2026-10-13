@@ -3,7 +3,6 @@ using TaskManager.Api.Models;
 
 namespace TaskManager.Api.Dtos;
 
-/// <summary>Parâmetros de filtro, busca e paginação (vêm da query string).</summary>
 public class TaskQuery
 {
     public string? Search { get; set; }

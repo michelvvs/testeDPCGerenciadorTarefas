@@ -5,7 +5,6 @@ using TaskManager.Api.Models;
 
 namespace TaskManager.Tests.Support;
 
-/// <summary>Banco SQLite em memória, novo para cada teste (xUnit cria uma instância por teste).</summary>
 public sealed class TestDb : IDisposable
 {
     private readonly SqliteConnection _connection;
@@ -15,7 +14,7 @@ public sealed class TestDb : IDisposable
     public TestDb()
     {
         _connection = new SqliteConnection("DataSource=:memory:");
-        _connection.Open(); // o banco em memória vive enquanto a conexão estiver aberta
+        _connection.Open();
 
         var options = new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_connection).Options;
         Context = new AppDbContext(options);

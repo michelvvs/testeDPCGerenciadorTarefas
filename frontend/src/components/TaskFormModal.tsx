@@ -3,16 +3,17 @@ import { getErrorMessage } from '../api/http';
 import { tasksApi } from '../api/tasks';
 import { PRIORITIES, PRIORITY_LABEL, STATUSES, STATUS_LABEL } from '../constants';
 import type { Task, TaskFormValues, TaskPriority, TaskStatus } from '../types/task';
-import { alertError, btn, inputClass } from '../ui';
+import { btn, inputClass } from '../ui';
+import { Alert } from './Alert';
 import { Modal } from './Modal';
 
 interface Props {
-  task: Task | null; // null = criando
+  task: Task | null;
   onClose: () => void;
   onSaved: (message: string) => void;
 }
 
-const FIELD = 'flex flex-col gap-1 text-sm text-slate-600';
+const FIELD = 'flex flex-col gap-1.5 text-sm font-medium text-base-content/70';
 
 export function TaskFormModal({ task, onClose, onSaved }: Props) {
   const [values, setValues] = useState<TaskFormValues>({
@@ -117,7 +118,7 @@ export function TaskFormModal({ task, onClose, onSaved }: Props) {
           </label>
         </div>
 
-        {error && <div className={alertError} role="alert">{error}</div>}
+        {error && <Alert>{error}</Alert>}
 
         <div className="mt-2 flex justify-end gap-2">
           <button type="button" className={btn('ghost')} onClick={onClose} disabled={saving}>

@@ -40,7 +40,6 @@ public class AuthService(AppDbContext db, ITokenService tokens) : IAuthService
         var email = Normalize(request.Email);
         var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
 
-        // Mesma mensagem para "não existe" e "senha errada": não revela quais e-mails estão cadastrados.
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             throw new UnauthorizedException("E-mail ou senha inválidos.");
 

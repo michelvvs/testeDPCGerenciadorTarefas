@@ -28,7 +28,7 @@ public class AuthServiceTests : IDisposable
 
         var user = await _testDb.Context.Users.SingleAsync();
         Assert.Equal("michel@exemplo.com", user.Email);
-        Assert.NotEqual("Senha@1234", user.PasswordHash);          // nunca em texto puro
+        Assert.NotEqual("Senha@1234", user.PasswordHash);
         Assert.True(BCrypt.Net.BCrypt.Verify("Senha@1234", user.PasswordHash));
         Assert.False(string.IsNullOrEmpty(response.Token));
     }

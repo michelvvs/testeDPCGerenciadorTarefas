@@ -124,7 +124,6 @@ public class TaskService(AppDbContext db, ICurrentUser currentUser) : ITaskServi
         await db.SaveChangesAsync(ct);
     }
 
-    // ---------- privates ----------
     private IQueryable<TaskItem> UserTasks()
     {
         var userId = currentUser.Id;

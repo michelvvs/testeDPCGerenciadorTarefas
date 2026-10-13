@@ -17,7 +17,6 @@ public class CreateTaskRequest
     public DateOnly? DueDate { get; set; }
 }
 
-/// <summary>PUT = substituição completa dos campos editáveis.</summary>
 public class UpdateTaskRequest : CreateTaskRequest
 {
     public TaskItemStatus Status { get; set; } = TaskItemStatus.Pending;

@@ -52,7 +52,7 @@ builder.Services.AddSwaggerGen(options =>
 var jwt = builder.Configuration.GetSection(JwtOptions.Section).Get<JwtOptions>()
           ?? throw new InvalidOperationException("Seção 'Jwt' ausente na configuração.");
 
-if (jwt.Key.Length < 32)   // HS256 exige chave de pelo menos 256 bits
+if (jwt.Key.Length < 32)
     throw new InvalidOperationException("Jwt:Key deve ter ao menos 32 caracteres.");
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.Section));
@@ -61,7 +61,7 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.MapInboundClaims = false;   // mantém o nome "sub" em vez de remapear
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,

@@ -11,7 +11,6 @@ namespace TaskManager.Api.Controllers;
 [Produces("application/json")]
 public class AuthController(IAuthService auth) : ControllerBase
 {
-    /// <summary>Cria uma conta e já devolve o token.</summary>
     [HttpPost("register")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -19,7 +18,6 @@ public class AuthController(IAuthService auth) : ControllerBase
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request, CancellationToken ct)
         => StatusCode(StatusCodes.Status201Created, await auth.RegisterAsync(request, ct));
 
-    /// <summary>Autentica e devolve o token JWT.</summary>
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]

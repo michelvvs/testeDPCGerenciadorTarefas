@@ -1,10 +1,41 @@
 @import 'tailwindcss';
 
-/* Tokens do design: viram utilitários (bg-navy-900, text-brand-600, hover:bg-brand-700...) */
 @theme {
-  --color-navy-900: #0f2747;
-  --color-brand-600: #1f4fb4;
-  --color-brand-700: #183f91;
+  --color-navy-900: #0e2941;
 
-  --font-sans: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  --color-brand-50: #eaf3fb;
+  --color-brand-100: #d3e6f6;
+  --color-brand-600: #0a488c;
+  --color-brand-700: #083a73;
+
+  --color-accent-500: #0095eb;
+  --color-accent-600: #0089f7;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #f4f6fb;
+  --color-base-300: #e3e8f2;
+  --color-base-content: #161922;
+
+  --radius-field: 0.625rem;
+  --radius-box: 1rem;
+  --radius-selector: 9999px;
+
+  --shadow-soft: 0 1px 2px rgb(16 24 40 / 0.04), 0 6px 20px -6px rgb(16 24 40 / 0.1);
+  --shadow-pop: 0 24px 56px -16px rgb(16 24 40 / 0.4);
+  --shadow-btn: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 1px 2px rgb(15 39 71 / 0.3);
+
+  --animate-pop: pop 0.18s ease-out;
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  --font-sans: 'Hanken Grotesk Variable', 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
 }

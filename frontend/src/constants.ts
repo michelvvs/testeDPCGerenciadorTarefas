@@ -23,9 +23,9 @@ export const STATUSES = Object.keys(STATUS_LABEL) as TaskStatus[];
 export const PRIORITIES = Object.keys(PRIORITY_LABEL) as TaskPriority[];
 
 export const PRIORITY_STYLE: Record<TaskPriority, string> = {
-  Low: 'text-slate-500',
-  Medium: 'text-amber-700',
-  High: 'text-red-700',
+  Low: 'bg-slate-100 text-slate-600',
+  Medium: 'bg-amber-100 text-amber-800',
+  High: 'bg-red-100 text-red-700',
 };
 
 export const STATUS_ACTIONS: Record<TaskStatus, StatusAction[]> = {
@@ -43,7 +43,7 @@ export const STATUS_ACTIONS: Record<TaskStatus, StatusAction[]> = {
 };
 
 export const ROW_STYLE: Record<TaskStatus, { row: string; accent: string; title: string }> = {
-  Pending:    { row: 'bg-white',      accent: 'border-l-slate-300',   title: '' },
-  InProgress: { row: 'bg-blue-50',    accent: 'border-l-blue-500',    title: '' },
-  Done:       { row: 'bg-emerald-50', accent: 'border-l-emerald-500', title: 'line-through text-slate-500' },
+  Pending:    { row: 'bg-base-100',        accent: 'border-l-slate-300',   title: '' },
+  InProgress: { row: 'bg-brand-50/70',     accent: 'border-l-brand-600',   title: '' },
+  Done:       { row: 'bg-emerald-50/70',   accent: 'border-l-emerald-500', title: 'line-through text-base-content/50' },
 };

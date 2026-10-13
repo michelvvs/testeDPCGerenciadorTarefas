@@ -15,17 +15,17 @@ export function Modal({ title, onClose, children }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-navy-900/50 p-4"
+      className="fixed inset-0 z-50 grid place-items-center bg-navy-900/40 p-4 backdrop-blur-sm"
       onMouseDown={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-xl bg-white p-5 shadow-2xl"
+        className="w-full max-w-lg animate-pop rounded-box bg-base-100 p-6 shadow-pop motion-reduce:animate-none"
         role="dialog"
         aria-modal="true"
         aria-label={title}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-3.5 text-xl font-semibold">{title}</h2>
+        <h2 className="mb-4 text-lg font-bold">{title}</h2>
         {children}
       </div>
     </div>

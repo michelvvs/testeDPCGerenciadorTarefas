@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react';
 import { PRIORITIES, PRIORITY_LABEL, STATUSES, STATUS_LABEL } from '../constants';
 import type { TaskPriority, TaskStatus } from '../types/task';
 import { btn, inputClass } from '../ui';
@@ -17,14 +18,20 @@ export function FilterBar({ search, status, priority, onSearch, onStatus, onPrio
 
   return (
     <div className="mb-4 flex flex-wrap gap-2.5">
-      <input
-        type="search"
-        className={`${inputClass} min-w-56 flex-1`}
-        placeholder="Buscar por título ou descrição…"
-        aria-label="Buscar tarefas"
-        value={search}
-        onChange={(e) => onSearch(e.target.value)}
-      />
+      <div className="relative min-w-56 flex-1">
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-base-content/40"
+          aria-hidden="true"
+        />
+        <input
+          type="search"
+          className={`${inputClass} w-full pl-9`}
+          placeholder="Buscar por título ou descrição…"
+          aria-label="Buscar tarefas"
+          value={search}
+          onChange={(e) => onSearch(e.target.value)}
+        />
+      </div>
       <select
         className={inputClass}
         aria-label="Filtrar por status"
