@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+/* Tokens do design: viram utilitários (bg-navy-900, text-brand-600, hover:bg-brand-700...) */
+@theme {
+  --color-navy-900: #0f2747;
+  --color-brand-600: #1f4fb4;
+  --color-brand-700: #183f91;
+
+  --font-sans: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+}
