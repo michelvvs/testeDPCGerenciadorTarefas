@@ -13,6 +13,8 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         {
             NotFoundException => (StatusCodes.Status404NotFound, "Recurso não encontrado"),
             BusinessRuleException => (StatusCodes.Status422UnprocessableEntity, "Regra de negócio violada"),
+            UnauthorizedException => (StatusCodes.Status401Unauthorized, "Não autorizado"),
+            ConflictException => (StatusCodes.Status409Conflict, "Conflito"),
             _ => (StatusCodes.Status500InternalServerError, "Erro interno do servidor")
         };
 

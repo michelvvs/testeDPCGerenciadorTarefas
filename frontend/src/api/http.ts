@@ -1,9 +1,31 @@
 import axios, { isAxiosError } from 'axios';
+import { clearSession, loadSession } from '../auth/storage';
 
 export const http = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5080',
   headers: { 'Content-Type': 'application/json' },
 });
+
+
+export const LOGOUT_EVENT = 'auth:logout';
+
+http.interceptors.request.use((config) => {
+  const session = loadSession();
+  if (session) config.headers.Authorization = `Bearer ${session.token}`;
+  return config;
+});
+
+http.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    const isAuthCall = isAxiosError(error) && error.config?.url?.includes('/api/auth/');
+    if (isAxiosError(error) && error.response?.status === 401 && !isAuthCall) {
+      clearSession();
+      window.dispatchEvent(new Event(LOGOUT_EVENT));
+    }
+    return Promise.reject(error);
+  },
+);
 
 interface ProblemDetails {
   title?: string;

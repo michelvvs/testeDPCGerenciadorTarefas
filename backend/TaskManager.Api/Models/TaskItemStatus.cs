@@ -1,4 +1,4 @@
-namespace Taskmanager.Api.Models;
+namespace TaskManager.Api.Models;
     public enum TaskItemStatus
     {
         Pending,

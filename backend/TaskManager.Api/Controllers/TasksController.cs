@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Api.Dtos;
 using TaskManager.Api.Services;
@@ -5,8 +6,10 @@ using TaskManager.Api.Services;
 namespace TaskManager.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 [Produces("application/json")]
+
 public class TasksController(ITaskService service) : ControllerBase
 {
     /// <summary>Lista tarefas com filtros, busca e paginação.</summary>

@@ -6,11 +6,12 @@ using TaskManager.Api.Models;
 
 namespace TaskManager.Api.Services;
 
-public class TaskService(AppDbContext db) : ITaskService
+public class TaskService(AppDbContext db, ICurrentUser currentUser) : ITaskService
 {
     public async Task<PagedResult<TaskResponse>> GetAllAsync(TaskQuery query, CancellationToken ct = default)
     {
-        IQueryable<TaskItem> tasks = db.Tasks.AsNoTracking();
+        
+        IQueryable<TaskItem> tasks = UserTasks().AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
@@ -41,7 +42,7 @@ public class TaskService(AppDbContext db) : ITaskService
 
     public async Task<TaskSummaryResponse> GetSummaryAsync(CancellationToken ct = default)
     {
-        var counts = await db.Tasks.AsNoTracking()
+        var counts = await UserTasks().AsNoTracking()
             .GroupBy(t => t.Status)
             .Select(g => new { Status = g.Key, Count = g.Count() })
             .ToListAsync(ct);
@@ -57,7 +58,7 @@ public class TaskService(AppDbContext db) : ITaskService
 
     public async Task<TaskResponse> GetByIdAsync(int id, CancellationToken ct = default)
     {
-        var entity = await db.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, ct)
+        var entity = await UserTasks().AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, ct)
                      ?? throw new NotFoundException($"Tarefa {id} não encontrada.");
 
         return TaskResponse.FromEntity(entity);
@@ -70,6 +71,7 @@ public class TaskService(AppDbContext db) : ITaskService
         var now = DateTime.UtcNow;
         var entity = new TaskItem
         {
+            UserId = currentUser.Id,
             Title = request.Title.Trim(),
             Description = request.Description?.Trim(),
             Priority = request.Priority,
@@ -123,9 +125,13 @@ public class TaskService(AppDbContext db) : ITaskService
     }
 
     // ---------- privates ----------
-
+    private IQueryable<TaskItem> UserTasks()
+    {
+        var userId = currentUser.Id;
+        return db.Tasks.Where(t => t.UserId == userId);
+    }   
     private async Task<TaskItem> FindOrThrowAsync(int id, CancellationToken ct) =>
-        await db.Tasks.FirstOrDefaultAsync(t => t.Id == id, ct)
+        await UserTasks().FirstOrDefaultAsync(t => t.Id == id, ct)
         ?? throw new NotFoundException($"Tarefa {id} não encontrada.");
 
     private static void ApplyStatus(TaskItem entity, TaskItemStatus newStatus)
