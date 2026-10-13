@@ -11,6 +11,7 @@ import { useDebounce } from './hooks/useDebounce';
 import { useTasks } from './hooks/useTasks';
 import type { Task, TaskPriority, TaskStatus } from './types/task';
 import { alertError, btn } from './ui';
+import { Plus } from 'lucide-react';
 
 interface ToastState {
   type: 'ok' | 'error';
@@ -32,6 +33,8 @@ export default function App() {
   const [editing, setEditing] = useState<Task | null>(null);
   const [deleting, setDeleting] = useState<Task | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [busyIds, setBusyIds] = useState<ReadonlySet<number>>(new Set());
+
 
   const search = useDebounce(searchInput.trim());
   const { data, summary, loading, error, reload } = useTasks({ search, status, priority, page });
@@ -58,6 +61,7 @@ export default function App() {
   }
 
   async function handleStatusChange(task: Task, newStatus: TaskStatus) {
+    if (busyIds.has(task.id)) return;
     try {
       await tasksApi.updateStatus(task.id, newStatus);
       notify('ok', 'Status atualizado.');
@@ -102,7 +106,7 @@ export default function App() {
             >
               ✓
             </span>
-            <span>TaskManager</span>
+            <span>Gestão de tarefas - Michel Victor | Domingues e Pinho Contadores</span>
           </div>
           <span className="hidden text-sm text-slate-300 sm:inline">Gestão de tarefas</span>
         </div>
@@ -116,8 +120,9 @@ export default function App() {
               Acompanhe, filtre e atualize o andamento das atividades.
             </p>
           </div>
-          <button type="button" className={btn('primary')} onClick={openCreate}>
-            + Nova tarefa
+          <button type="button" className={`${btn('primary')} gap-1.5`} onClick={openCreate}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Nova tarefa
           </button>
         </div>
 
@@ -151,11 +156,12 @@ export default function App() {
 
           {tasks.length > 0 && (
             <TaskTable
+            
               tasks={tasks}
               onEdit={openEdit}
               onDelete={setDeleting}
-              onStatusChange={handleStatusChange}
-            />
+              onStatusChange={handleStatusChange} 
+              busyIds={busyIds}            />
           )}
 
           {data && (

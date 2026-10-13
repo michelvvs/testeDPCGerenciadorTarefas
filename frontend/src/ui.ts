@@ -13,6 +13,7 @@ const VARIANT = {
 const SIZE = {
   md: 'px-3.5 py-2 text-sm',
   sm: 'px-2.5 py-1 text-xs',
+  icon: 'h-8 w-8',
 } as const;
 
 export function btn(variant: keyof typeof VARIANT = 'ghost', size: keyof typeof SIZE = 'md'): string {
